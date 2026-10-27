@@ -4,52 +4,54 @@ Este projeto consiste em uma Análise Exploratória de Dados (EDA) sobre a produ
 
 ## Objetivos do Projeto
 
-O principal objetivo é entender como a produção científica e o impacto das citações se distribuem entre os departamentos e os pesquisadores, respondendo a perguntas como:
-1. Qual departamento possui o maior impacto científico?
+O principal objetivo é investigar a distribuição de produtividade e impacto científico, respondendo às seguintes perguntas de pesquisa:
+1. Qual departamento possui o maior impacto científico (medido por citações, documentos, índice h e índice i10)?
 2. Produzir mais documentos significa receber mais citações?
 3. Quais pesquisadores apresentam maior impacto relativo por documento?
-4. A produção científica está concentrada em poucos pesquisadores?
+4. A produção científica está concentrada em poucos pesquisadores (Curva de Lorenz e Gini)?
 5. Como foi a rotatividade (entradas e saídas) de pesquisadores nos últimos 10 anos?
 
 ## Tecnologias e Bibliotecas Utilizadas
 
-O projeto foi desenvolvido em **Python**, majoritariamente em ambiente Google Colab / Jupyter Notebook. As seguintes bibliotecas foram utilizadas:
-* `pandas` e `numpy`: Manipulação, limpeza e agregação dos dados.
-* `matplotlib` e `seaborn`: Criação de visualizações gráficas (boxplots, dispersões, gráficos de linha e barras).
+O projeto foi desenvolvido em **Python** (ambiente Google Colab / Jupyter Notebook).
+* `pandas` e `numpy`: Manipulação, limpeza e engenharia de dados.
+* `plotly` (express e graph_objects): Criação de visualizações **interativas** (gráficos com tooltips, zoom e hover customizado).
+* `matplotlib` e `seaborn`: Suporte para visualizações estáticas.
 * `scipy.stats`: Cálculo da correlação de Spearman.
 
-## Tratamento dos Dados
+## Tratamento e Engenharia de Dados
 
-Como o dataset original é um painel acumulado (o mesmo pesquisador aparece em vários anos com os mesmos valores de citações, gerando duplicatas), foram aplicadas as seguintes etapas de limpeza:
-1. **Tipagem:** Conversão forçada das colunas numéricas para evitar erros (`errors='coerce'`).
-2. **Remoção de Nulos:** Exclusão de linhas sem informações essenciais de citações ou documentos.
-3. **Deduplicação para Análises Individuais:** Criação do DataFrame `df_ultimo`, mantendo apenas o registro mais recente de cada pesquisador. Isso evita que o mesmo autor seja contado 10 vezes nas métricas de distribuição (boxplots) e correlações.
+Para garantir a integridade das análises, o código passou por um rigoroso pipeline de tratamento:
+1. **Identificação Única:** Como o mesmo autor aparece em vários anos, criou-se um ID único por pesquisador, priorizando o ID do Google Scholar, depois o Número USP e, por fim, o nome. Isso evita contar a mesma pessoa duas vezes por variação de grafia.
+2. **Snapshot Anual:** Para as análises de impacto (1 a 4), foi isolado o registro mais recente (ano de referência) de cada pesquisador, criando o DataFrame `df_ultimo` (ou `df_validos`).
+3. **Preservação para Análise Temporal:** Para a Análise 5, o dataset foi recarregado do zero para não perder o histórico de pesquisadores que ingressaram recentemente e ainda não possuem métricas preenchidas.
+4. **Tratamento de Zeros:** Uso da transformação `log1p(x)` nos gráficos para lidar com valores iguais a zero (já que logaritmos tradicionais não aceitam zero), garantindo a exibição de toda a distribuição sem distorções.
 
 ## Análises Realizadas e Principais Insights
 
 ### 1. Impacto Científico por Departamento
-*   **Metodologia:** Utilização de boxplots e medianas para comparar citações, documentos, índice h e índice i10.
-*   **Insight:** A mediana é uma métrica mais robusta que a média aqui, pois a distribuição de citações é altamente assimétrica (poucos pesquisadores concentram números extremos). O uso do boxplot permitiu visualizar a dispersão e os outliers de cada departamento.
+*   **Metodologia:** Gráficos de barras interativos para totais e Boxplots para distribuição de citações, documentos, índice h e i10.
+*   **Insight:** A utilização de Boxplots permitiu visualizar a **mediana**, que é imune a distorções causadas por *outliers* (pesquisadores com citações extremamente altas). A escala logarítmica (`log1p`) foi aplicada para melhorar a visualização de distribuições assimétricas.
 
 ### 2. Produção vs. Impacto (Documentos x Citações)
-*   **Metodologia:** Gráfico de dispersão e Correlação de Spearman (ρ).
-*   **Insight:** Foi encontrada uma forte correlação positiva (ρ ≈ 0.89), indicando que, no geral, produzir mais documentos está associado a receber mais citações. No entanto, a análise visual revelou "outliers de eficiência": pesquisadores com poucos documentos, mas com um volume de citações excepcionalmente alto.
+*   **Metodologia:** Gráfico de dispersão interativo e Correlação de Spearman (ρ).
+*   **Insight:** A correlação de Spearman indica uma forte relação positiva entre a quantidade de documentos e as citações totais. O gráfico interativo revelou "outliers de eficiência" (pesquisadores com pouca produção, mas altíssimo impacto).
 
 ### 3. Eficiência (Impacto Relativo por Documento)
-*   **Metodologia:** Cálculo da razão `citações totais / documentos totais` (com filtro mínimo de 30 documentos para evitar distorções) e comparação das medianas por departamento.
-*   **Insight:** Identificou-se os pesquisadores com maior "peso" por artigo. *Nota metodológica: essa métrica não considera a idade dos trabalhos (artigos antigos acumulam mais citações) nem as diferenças de convenções de citação entre as áreas.*
+*   **Metodologia:** Cálculo da razão `citações totais / documentos totais`, com aplicação de filtro mínimo (ex: 30 documentos) para evitar ruídos estatísticos.
+*   **Insight:** Identificou-se os pesquisadores com maior "peso" por artigo. *Nota metodológica: essa métrica não considera a idade dos trabalhos nem as diferenças de convenções de citação entre as áreas.*
 
 ### 4. Concentração de Citações (Curva de Lorenz e Gini)
-*   **Metodologia:** Cálculo da porcentagem de citações detidas pelo Top 10% dos pesquisadores, plotagem da Curva de Lorenz e cálculo do Índice de Gini.
-*   **Insight:** A ciência neste dataset segue a Lei de Pareto (regra 80/20). Uma parcela muito pequena de pesquisadores concentra a grande maioria das citações, caracterizando uma alta desigualdade de impacto (Gini elevado). A Curva de Lorenz afasta-se consideravelmente da linha de igualdade perfeita.
+*   **Metodologia:** Cálculo da porcentagem de citações detidas pelo Top 10% dos pesquisadores, plotagem interativa da Curva de Lorenz e cálculo matemático do Índice de Gini.
+*   **Insight:** A produção científica segue a Lei de Pareto. A Curva de Lorenz afasta-se significativamente da linha de igualdade perfeita, e o Gini elevado comprova que a grande maioria das citações concentra-se em uma minoria de pesquisadores.
 
 ### 5. Evolução e Rotatividade (Entradas e Saídas)
-*   **Metodologia:** Análise temporal (2015-2025) mapeando o primeiro e o último ano de registro de cada pesquisador em seu departamento.
-*   **Insight:** Foram contabilizados os pesquisadores que surgiram (primeiro registro ≥ 2016) e os que saíram (último registro ≤ 2024). O gráfico de barras agrupadas revela o saldo líquido de capital humano de cada departamento nos últimos 10 anos, mostrando quais áreas estão em expansão ou retração.
+*   **Metodologia:** Análise temporal mapeando o primeiro e o último ano de registro de cada ID de pesquisador. Criação de gráficos de barras agrupadas (entradas vs. saídas) e gráficos de linha (evolução anual).
+*   **Insight:** A análise revelou o saldo líquido de capital humano de cada departamento nos últimos 10 anos, demonstrando quais áreas estão em expansão e quais passaram por redução de quadro.
 
 ## Como Reproduzir
 
 1. Clone este repositório.
 2. Certifique-se de ter as bibliotecas instaladas: 
    ```bash
-   pip install pandas numpy matplotlib seaborn scipy
+   pip install pandas numpy matplotlib seaborn scipy plotly
