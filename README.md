@@ -1,57 +1,74 @@
-# Análise de Impacto Científico e Produção Acadêmica
+# README — Retrato Bibliométrico de Quatro Institutos da USP (2025)
 
-Este projeto consiste em uma Análise Exploratória de Dados (EDA) sobre a produção científica e o impacto de pesquisadores de diferentes departamentos do Instituto de Ciências Matemáticas e de Computação (SCC, SSC, SME e SMA), da USP Campus São Carlos, utilizando dados extraídos do Google Scholar entre os anos de 2015 e 2025.
+## Sobre o projeto
 
-## Objetivos do Projeto
+Este repositório contém a **segunda e última etapa** do projeto da disciplina **SCC0252 — Visualização Computacional (2026/2)**. O trabalho constrói um retrato bibliométrico transversal dos pesquisadores de quatro institutos da USP em São Carlos, com base em dados de perfis do Google Scholar coletados em 2025.
 
-O principal objetivo é investigar a distribuição de produtividade e impacto científico, respondendo às seguintes perguntas de pesquisa:
-1. Qual departamento possui o maior impacto científico (medido por citações, documentos, índice h e índice i10)?
-2. Produzir mais documentos significa receber mais citações?
-3. Quais pesquisadores apresentam maior impacto relativo por documento?
-4. A produção científica está concentrada em poucos pesquisadores (Curva de Lorenz e Gini)?
-5. Como foi a rotatividade (entradas e saídas) de pesquisadores nos últimos 10 anos?
+**Integrantes:**
+- Daniela Costa da Silva (14613625)
+- Isaac Ferreira Souza Santos (15637912)
+- Thiago Oliveira dos Santos (13696220)
+- Anna Lucia Moro Lanzuolo (13864436)
 
-## Tecnologias e Bibliotecas Utilizadas
+**Institutos analisados:** ICMC, EESC, IFSC e IQSC.
 
-O projeto foi desenvolvido em **Python** (ambiente Google Colab / Jupyter Notebook).
-* `pandas` e `numpy`: Manipulação, limpeza e engenharia de dados.
-* `plotly` (express e graph_objects): Criação de visualizações **interativas** (gráficos com tooltips, zoom e hover customizado).
-* `matplotlib` e `seaborn`: Suporte para visualizações estáticas.
-* `scipy.stats`: Cálculo da correlação de Spearman.
+> **Nota sobre o período:** o ano **2025** identifica as listas de pesquisadores utilizadas. As métricas (documentos, citações e índice h) são **totais acumulados** registrados nas consultas — não representam produção apenas do ano de 2025. O recorte é **transversal**, não longitudinal: não há comparação de crescimento, entrada ou saída de docentes entre anos.
 
-## Tratamento e Engenharia de Dados
+---
 
-Para garantir a integridade das análises, o código passou por um rigoroso pipeline de tratamento:
-1. **Identificação Única:** Como o mesmo autor aparece em vários anos, criou-se um ID único por pesquisador, priorizando o ID do Google Scholar, depois o Número USP e, por fim, o nome. Isso evita contar a mesma pessoa duas vezes por variação de grafia.
-2. **Snapshot Anual:** Para as análises de impacto (1 a 4), foi isolado o registro mais recente (ano de referência) de cada pesquisador, criando o DataFrame `df_ultimo` (ou `df_validos`).
-3. **Preservação para Análise Temporal:** Para a Análise 5, o dataset foi recarregado do zero para não perder o histórico de pesquisadores que ingressaram recentemente e ainda não possuem métricas preenchidas.
-4. **Tratamento de Zeros:** Uso da transformação `log1p(x)` nos gráficos para lidar com valores iguais a zero (já que logaritmos tradicionais não aceitam zero), garantindo a exibição de toda a distribuição sem distorções.
+## Objetivo e perguntas de investigação
 
-## Análises Realizadas e Principais Insights
+O objetivo **não é classificar áreas como melhores ou piores**, mas identificar diferenças de distribuição e perfis que mereçam investigação. As cinco perguntas exploratórias que guiam a análise são:
 
-### 1. Impacto Científico por Departamento
-*   **Metodologia:** Gráficos de barras interativos para totais e Boxplots para distribuição de citações, documentos, índice h e i10.
-*   **Insight:** A utilização de Boxplots permitiu visualizar a **mediana**, que é imune a distorções causadas por *outliers* (pesquisadores com citações extremamente altas). A escala logarítmica (`log1p`) foi aplicada para melhorar a visualização de distribuições assimétricas.
+1. Como as citações se distribuem entre os departamentos de cada instituto?
+2. Pesquisadores com mais documentos também tendem a registrar mais citações?
+3. Quais pesquisadores se destacam em citações e em índice h?
+4. As citações se concentram em uma parcela pequena dos pesquisadores?
+5. Os departamentos apresentam perfis distintos de documentos, citações e índice h?
 
-### 2. Produção vs. Impacto (Documentos x Citações)
-*   **Metodologia:** Gráfico de dispersão interativo e Correlação de Spearman (ρ).
-*   **Insight:** A correlação de Spearman indica uma forte relação positiva entre a quantidade de documentos e as citações totais. O gráfico interativo revelou "outliers de eficiência" (pesquisadores com pouca produção, mas altíssimo impacto).
+Citações e índice h dependem de área, tempo de carreira, práticas de publicação e cobertura do Google Scholar — as conclusões respeitam essas diferenças.
 
-### 3. Eficiência (Impacto Relativo por Documento)
-*   **Metodologia:** Cálculo da razão `citações totais / documentos totais`, com aplicação de filtro mínimo (ex: 30 documentos) para evitar ruídos estatísticos.
-*   **Insight:** Identificou-se os pesquisadores com maior "peso" por artigo. *Nota metodológica: essa métrica não considera a idade dos trabalhos nem as diferenças de convenções de citação entre as áreas.*
+---
 
-### 4. Concentração de Citações (Curva de Lorenz e Gini)
-*   **Metodologia:** Cálculo da porcentagem de citações detidas pelo Top 10% dos pesquisadores, plotagem interativa da Curva de Lorenz e cálculo matemático do Índice de Gini.
-*   **Insight:** A produção científica segue a Lei de Pareto. A Curva de Lorenz afasta-se significativamente da linha de igualdade perfeita, e o Gini elevado comprova que a grande maioria das citações concentra-se em uma minoria de pesquisadores.
+## Dados e tratamento
 
-### 5. Evolução e Rotatividade (Entradas e Saídas)
-*   **Metodologia:** Análise temporal mapeando o primeiro e o último ano de registro de cada ID de pesquisador. Criação de gráficos de barras agrupadas (entradas vs. saídas) e gráficos de linha (evolução anual).
-*   **Insight:** A análise revelou o saldo líquido de capital humano de cada departamento nos últimos 10 anos, demonstrando quais áreas estão em expansão e quais passaram por redução de quadro.
+- **Fontes:** quatro CSVs originais (um por instituto), com fallback para um arquivo unificado já auditado (`Conjunto_2025_Tratado.csv`) e, em último caso, URLs públicas do repositório.
+- **Padronização:** cabeçalhos normalizados (ex.: `documentos_total_consulta` e `documentos total na consulta` viram `documentos_totais`), filtro para 2025, remoção de linhas vazias.
+- **Qualidade:** valores ausentes **não são tratados como zero**. Índices h incoerentes (h > documentos) são anulados e sinalizados em `alerta_qualidade`. Registros só entram em comparações documentos × citações se tiverem ambas as métricas (`registro_valido_documentos_citacoes`).
+- **Reprodutibilidade:** o pré-processamento gera `Conjunto_2025_Tratado.csv`, usado nas etapas seguintes.
+- **Amostra:** 425 registros de 2025, dos quais **411** têm documentos e citações válidos, distribuídos em **17 departamentos**.
 
-## Como Reproduzir
+---
 
-1. Clone este repositório.
-2. Certifique-se de ter as bibliotecas instaladas: 
+## Análises realizadas
+
+| # | Análise | Técnica | Principais achados |
+|---|---------|---------|--------------------|
+| 1 | Distribuição de citações por departamento | Boxplots (por instituto) | Forte assimetria; medianas variam de ~237 (SMA/ICMC) a ~5.475 (SQF/IQSC); outliers bem acima da caixa. |
+| 2 | Documentos × citações | Scatter em escala log + correlação de Spearman | Associação monotônica forte e positiva em todos os institutos (ρ entre 0,774 e 0,873; p < 1e-9). Sem inferência causal. |
+| 3 | Destaques individuais | Rankings por citações e por índice h | Ex.: no ICMC, André Carlos P. de L. F. de Carvalho lidera (24.240 citações, h=78). Rankings descritivos, não avaliativos. |
+| 4 | Concentração de citações | Participação acumulada | Verifica se poucos pesquisadores concentram grande parte das citações. |
+| 5 | Perfis departamentais | Comparação de medianas de documentos, citações e h | Departamentos com perfis distintos; contagem de pesquisadores varia de 8 (SGS/EESC) a 38 (SMA/ICMC), exigindo cuidado com somas. |
+
+---
+
+## Estrutura do repositório
+├── DataVisualizationPart2.ipynb # Notebook principal (esta etapa)
+├── Conjunto_2025_Tratado.csv # Base unificada e auditada (gerada no notebook)
+├── DatasetICMC.csv # Fonte original (opcional)
+├── DatasetEESC.csv # Fonte original (opcional)
+├── DatasetIFSC.csv # Fonte original (opcional)
+├── DatasetIQSC.csv # Fonte original (opcional)
+└── README.md
+
+
+O notebook procura os arquivos no diretório atual, em `/content`, `/mnt/data` e subpastas `dados/`. Se os quatro CSVs originais não estiverem presentes, usa o arquivo tratado; se nenhum existir, tenta os links públicos.
+
+---
+
+## Como executar
+
+1. Abra `DataVisualizationPart2.ipynb` no Google Colab ou Jupyter.
+2. Execute as células em ordem. A primeira célula instala as dependências:
    ```bash
-   pip install pandas numpy matplotlib seaborn scipy plotly
+   pip install "dash>=2.17,<4" "plotly>=5.20" pandas numpy scipy
