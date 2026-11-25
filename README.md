@@ -2,7 +2,7 @@
 
 ## Sobre o projeto
 
-Este repositório contém a **segunda e última etapa** do projeto da disciplina **SCC0252 — Visualização Computacional (2026/2)**. O trabalho constrói um retrato bibliométrico transversal dos pesquisadores de quatro institutos da USP em São Carlos, com base em dados de perfis do Google Scholar coletados em 2025.
+Este repositório contém a **todas as etapas** do projeto da disciplina **SCC0252 — Visualização Computacional (2026/2)**. O trabalho constrói um retrato bibliométrico transversal dos pesquisadores de quatro institutos da USP em São Carlos, com base em dados de perfis do Google Scholar. Na primeira parte, foram feitas análises apenas do ICMC nos anos de 2015 a 2025, enquanto que na segunda etapa, foram analisados os demais institutos (IFSC, IQSC, EESC) apenas no ano de 2025 devido a restrições do dataset encontrado.
 
 **Integrantes:**
 - Daniela Costa da Silva (14613625)
